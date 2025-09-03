@@ -16,7 +16,9 @@ body {
     margin: 0;
     padding: 24px;
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-    background: var(--bg);
+    background: url("https://images.unsplash.com/photo-1663970206579-c157cba7edda?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+    background-repeat: none;
+    background-attachment: fixed;
     color: var(--ink);
 }
 
@@ -32,6 +34,7 @@ body {
     border-radius: 16px;
     padding: 20px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+    opacity: .99;
 }
 
 h1 {
