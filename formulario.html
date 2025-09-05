@@ -11,7 +11,7 @@
 <body>
     <div class="card">
         <h1 class="titulo_form"">Formulario de Registro de Práctica / Pedido</h1>
-        <form id=" pedidoForm" class="grid" autocomplete="off" action="save.js">
+        <form id="pedidoForm" class="grid" autocomplete="off">
             <!-- Instructor -->
             <div class="row">
                 <div class="col-12"><label>Curso</label>
@@ -40,7 +40,7 @@
             <div class="row">
                 <div class="col-12">
                     <label>Alumno Encargado</label>
-                    <input type="text" placeholder="Ingrese su código">
+                    <input id="alumnoCodigo" type="text" placeholder="Ingrese su código">
                 </div>
             </div>
 
@@ -72,10 +72,18 @@
                 </div>
             </div>
             </form>
-
-            <pre id="salida" hidden></pre>
     </div>
-    
+
+    <!-- Modal de confirmación centrado -->
+    <div id="modalOverlay" class="modal-overlay" hidden>
+        <div class="modal">
+            <h2>Su solicitud fue exitosa.</h2>
+            <div class="actions" style="justify-content:center">
+                <button id="modalPrint" class="btn primary" type="button">Imprimir Solicitud</button>
+            </div>
+            <!-- Vista previa removida: solo se abrirá en nueva pestaña -->
+        </div>
+    </div>
     <script type="module" src="./resources/js/form.js"></script>
 </body>
 

@@ -174,3 +174,33 @@ pre {
     font-weight: bold;
     cursor: pointer;
 }
+
+/* Modal centrado */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    display: none; /* Oculto por defecto */
+    place-items: center;
+    z-index: 1000;
+}
+
+.modal-overlay.is-open {
+    display: grid; /* Visible cuando está abierto */
+}
+
+.modal {
+    width: min(480px, 90vw);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+    text-align: center;
+}
+
+.modal h2 {
+    margin: 0 0 16px;
+}
+
+/* Vista previa de PDF removida: no se usa */
