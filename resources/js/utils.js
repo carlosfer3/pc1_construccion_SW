@@ -18,11 +18,33 @@ const verificarInsumoSeleccionado = (id, listaInsumos) => {
     return false
 }
 
-//Muestra los insumos seleccionados en la lista visible
+//Muestra los insumos seleccionados en la lista visible con botón para quitar
 const mostrarInsumosSeleccionados = (id, nombre, listaInsumos) => {
     const li = document.createElement('li')
     li.dataset.value = id
-    li.textContent = nombre
+
+    const label = document.createElement('span')
+    label.textContent = nombre
+    li.appendChild(label)
+
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.title = 'Quitar insumo'
+    btn.textContent = '×'
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        // Eliminar el li
+        li.remove()
+        // Eliminar el input oculto correspondiente
+        for (const input of document.querySelectorAll('input[name="insumos[]"]')) {
+            if (input.value === nombre) {
+                input.remove()
+                break
+            }
+        }
+    })
+    li.appendChild(btn)
+
     listaInsumos.appendChild(li)
 }
 

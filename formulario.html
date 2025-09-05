@@ -72,8 +72,17 @@
                 </div>
             </div>
             </form>
+    </div>
 
-            <pre id="salida" hidden></pre>
+    <!-- Modal de confirmación centrado -->
+    <div id="modalOverlay" class="modal-overlay" hidden>
+        <div class="modal">
+            <h2>Su solicitud fue exitosa.</h2>
+            <div class="actions" style="justify-content:center">
+                <button id="modalPrint" class="btn primary" type="button">Imprimir Solicitud</button>
+            </div>
+            <!-- Vista previa removida: solo se abrirá en nueva pestaña -->
+        </div>
     </div>
     <script type="module" src="./resources/js/form.js"></script>
 </body>

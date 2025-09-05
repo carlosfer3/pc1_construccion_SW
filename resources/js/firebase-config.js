@@ -4,9 +4,9 @@ export const firebaseConfig = {
   authDomain: "formulario-laboratorio-quimica.firebaseapp.com",
   databaseURL: "https://formulario-laboratorio-quimica-default-rtdb.firebaseio.com",
   projectId: "formulario-laboratorio-quimica",
-  storageBucket: "formulario-laboratorio-quimica.firebasestorage.app",
+  // Para Storage, el bucket por defecto usa el dominio appspot.com
+  storageBucket: "formulario-laboratorio-quimica.appspot.com",
   messagingSenderId: "229637960454",
   appId: "1:229637960454:web:f98d78fb1c377b9248a487",
   measurementId: "G-G4DN679G65"
 }
-
