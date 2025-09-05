@@ -2,6 +2,8 @@
 import { cursos, instructores, evaluaciones, insumos } from "./db.js"
 
 import { llenarSelect, verificarInsumoSeleccionado, mostrarInsumosSeleccionados, crearInputInvisibles } from "./utils.js"
+import { savePedido } from './firebase.js'
+import { buildData } from './data.js'
 
 
 //Selecciono del DOM los HTML Options
@@ -12,6 +14,8 @@ const insumosSelect = document.getElementById('insumosSelect')
 const listaInsumos = document.getElementById('listaInsumos')
 const reset = document.getElementById('reset')
 const contenedor_insumos = document.getElementById('contenedor-inputs-insumos')
+const pedidoForm = document.getElementById('pedidoForm')
+const salida = document.getElementById('salida')
 
 //Llenando los cursos
 llenarSelect(cursoSelect, cursos, 'codigo', 'nombre')
@@ -46,4 +50,26 @@ reset.addEventListener('click', () => {
     contenedor_insumos.innerHTML = ""
     instSugeridos.innerHTML = `<option value="" hidden>— No disponible —</option>`
     practicaSelect.innerHTML = `<option value="" hidden>— Primero elige un curso —</option>`
+})
+
+// Enviar a Firebase al guardar
+pedidoForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    try {
+        const data = buildData()
+        const { key } = await savePedido(data)
+        if (salida) {
+            salida.hidden = false
+            salida.textContent = `Guardado con clave: ${key}\n` + JSON.stringify(data, null, 2)
+        }
+        // Opcionalmente, puedes resetear el formulario
+        // pedidoForm.reset()
+    } catch (err) {
+        console.error(err)
+        if (salida) {
+            salida.hidden = false
+            salida.textContent = `Error al guardar: ${err?.message || err}`
+        }
+        alert('Ocurrió un error al guardar. Revisa la consola.')
+    }
 })
