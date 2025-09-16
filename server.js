@@ -2,6 +2,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
+import router from './routes/routes.js'
 
 //usamos las variables globales del sistema
 dotenv.config() 
@@ -14,7 +15,25 @@ const app = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded( { extended: true }))
 app.use(express.static('resources'))
-app.set("view engine", "ejs");
+
+// rutas API
+app.use('/api', router)
+
+// Servir frontend React en producción (si existe build)
+import path from 'path'
+import { fileURLToPath } from 'url'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const clientDistPath = path.join(__dirname, 'client', 'dist')
+app.use('/assets', express.static(path.join(clientDistPath, 'assets')))
+
+app.get(['/','/login','/usuarios','/roles','/cursos','/practicas','/solicitudes','/logistica','/inventario','/reportes','/grupos','/delegados'], (req, res, next) => {
+  // Si existe el index de React, lo devolvemos
+  const indexPath = path.join(clientDistPath, 'index.html')
+  res.sendFile(indexPath, (err) => {
+    if (err) return next()
+  })
+})
 
 //iniciamos el servidor
 app.listen(puerto, () => {
