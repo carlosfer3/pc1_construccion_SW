@@ -228,12 +228,7 @@ router.post('/auth/login', async (req, res) => {
     if (!ok) return res.status(401).json({ error: 'Credenciales inválidas' })
     await pool.request().input('id', sql.VarChar(10), u.idUsuario).query('UPDATE usuarios SET ultimo_acceso = GETDATE() WHERE idUsuario=@id')
     // Nota: Para producción, firma un JWT y aplícalo como Authorization.
-    // Verificar si la clave es la inicial 'admin'
-    let requiereCambioClave = false
-    if (await bcrypt.compare('admin', u.clave)) {
-      requiereCambioClave = true
-    }
-    res.json({ token: 'dev-token', user: { idUsuario: u.idUsuario, nombres: u.nombres, apellidos: u.apellidos, correo: u.correo, idRol: u.idRol }, requiereCambioClave })
+    res.json({ token: 'dev-token', user: { idUsuario: u.idUsuario, nombres: u.nombres, apellidos: u.apellidos, correo: u.correo, idRol: u.idRol } })
   } catch (err) {
     console.error('Login error:', err)
     res.status(500).json({ error: 'Error interno' })
@@ -337,19 +332,14 @@ router.get('/admin/upcoming-practices', async (_req, res) => {
   }
 })
 
-router.get('/admin/low-stock', async (req, res) => {
+router.get('/admin/low-stock', async (_req, res) => {
   try {
     const pool = await getConnection()
-    const threshold = Number(req.query.threshold || 5)
-    const top = Math.min(Number(req.query.limit) || 12, 100)
-    const r = await pool.request()
-      .input('th', sql.Int, threshold)
-      .query(`
-        SELECT TOP (${top}) nombre, stock
-        FROM insumos
-        WHERE stock <= @th
-        ORDER BY stock ASC
-      `)
+    const r = await pool.request().query(`
+      SELECT TOP 6 nombre, stock
+      FROM insumos
+      ORDER BY stock ASC
+    `)
     res.json(r.recordset)
   } catch (err) {
     console.error('Low stock error:', err)
@@ -420,168 +410,5 @@ router.get('/admin/monthly-requests', async (_req, res) => {
   } catch (err) {
     console.error('Monthly requests error:', err)
     res.status(500).json({ error: 'Error interno' })
-  }
-})
-
-// ---- Tipos de Insumo ----
-router.get('/tipos-insumo', async (_req, res) => {
-  try {
-    const pool = await getConnection()
-    // Algunas bases no tienen columna descripcion; devolvemos solo idTipo y nombre
-    const r = await pool.request().query(`
-      SELECT t.idTipo, t.nombre, COUNT(i.idInsumo) AS cantidad
-      FROM dbo.tipo_insumos t
-      LEFT JOIN dbo.insumos i ON i.idTipo = t.idTipo
-      GROUP BY t.idTipo, t.nombre
-      ORDER BY t.nombre
-    `)
-    res.json(r.recordset)
-  } catch (err) {
-    console.error('Tipos insumo error:', err)
-    res.status(500).json({ error: 'Error interno' })
-  }
-})
-
-// ---- Insumos ----
-router.get('/insumos', async (req, res) => {
-  try {
-    const pool = await getConnection()
-    const { search, idTipo, prestablesOnly, lowStock, limit } = req.query || {}
-    const top = Math.min(Number(limit) || 100, 500)
-    const rq = pool.request()
-    const where = []
-    if (search) {
-      rq.input('q', sql.VarChar(120), `%${String(search)}%`)
-      where.push(`(
-        i.nombre COLLATE SQL_Latin1_General_CP1_CI_AI LIKE @q COLLATE SQL_Latin1_General_CP1_CI_AI
-        OR t.nombre COLLATE SQL_Latin1_General_CP1_CI_AI LIKE @q COLLATE SQL_Latin1_General_CP1_CI_AI
-      )`)
-    }
-    if (idTipo) { rq.input('idTipo', sql.VarChar(10), String(idTipo)); where.push('i.idTipo = @idTipo') }
-    if (String(prestablesOnly).toLowerCase() === 'true' || prestablesOnly === '1') where.push('i.es_prestable = 1')
-    if (String(lowStock).toLowerCase() === 'true' || lowStock === '1') where.push('i.stock <= 5')
-    const sqlWhere = where.length ? 'WHERE ' + where.join(' AND ') : ''
-    const q = `SELECT TOP (${top}) i.idInsumo, i.nombre, i.idTipo, i.stock, i.capacidad_valor, i.capacidad_unidad, i.es_prestable,
-                    t.nombre AS tipoNombre
-               FROM insumos i INNER JOIN tipo_insumos t ON t.idTipo = i.idTipo
-               ${sqlWhere}
-               ORDER BY i.nombre`
-    const r = await rq.query(q)
-    res.json(r.recordset)
-  } catch (err) {
-    console.error('List insumos error:', err)
-    res.status(500).json({ error: 'Error al listar insumos' })
-  }
-})
-
-router.post('/insumos', async (req, res) => {
-  const { idInsumo, nombre, idTipo, stock = 0, capacidad_valor = null, capacidad_unidad = null, es_prestable = 0 } = req.body || {}
-  if (!idInsumo || !nombre || !idTipo) return res.status(400).json({ error: 'idInsumo, nombre e idTipo son obligatorios' })
-  try {
-    const pool = await getConnection()
-    await pool.request()
-      .input('id', sql.VarChar(10), String(idInsumo))
-      .input('nom', sql.VarChar(100), String(nombre))
-      .input('tipo', sql.VarChar(10), String(idTipo))
-      .input('stock', sql.Int, Number(stock) || 0)
-      .input('cap', sql.Decimal(10,2), capacidad_valor !== null && capacidad_valor !== undefined ? Number(capacidad_valor) : null)
-      .input('uni', sql.VarChar(10), capacidad_unidad ? String(capacidad_unidad) : null)
-      .input('prest', sql.Bit, es_prestable ? 1 : 0)
-      .query(`INSERT INTO insumos (idInsumo, nombre, idTipo, stock, capacidad_valor, capacidad_unidad, es_prestable)
-              VALUES (@id, @nom, @tipo, @stock, @cap, @uni, @prest)`)
-    res.status(201).json({ ok: true })
-  } catch (err) {
-    console.error('Crear insumo error:', err)
-    res.status(500).json({ error: 'Error al crear insumo' })
-  }
-})
-
-router.put('/insumos/:id', async (req, res) => {
-  const { id } = req.params
-  const { nombre, idTipo, stock, capacidad_valor, capacidad_unidad, es_prestable } = req.body || {}
-  try {
-    const pool = await getConnection()
-    const rq = pool.request()
-      .input('id', sql.VarChar(10), String(id))
-      .input('nom', sql.VarChar(100), nombre ?? null)
-      .input('tipo', sql.VarChar(10), idTipo ?? null)
-      .input('stock', sql.Int, stock ?? null)
-      .input('cap', sql.Decimal(10,2), (capacidad_valor!==undefined? capacidad_valor : null))
-      .input('uni', sql.VarChar(10), capacidad_unidad ?? null)
-      .input('prest', sql.Bit, (es_prestable===undefined? null : (es_prestable?1:0)))
-    await rq.query(`UPDATE insumos SET
-        nombre = ISNULL(@nom, nombre),
-        idTipo = ISNULL(@tipo, idTipo),
-        stock = ISNULL(@stock, stock),
-        capacidad_valor = CASE WHEN @cap IS NULL THEN capacidad_valor ELSE @cap END,
-        capacidad_unidad = ISNULL(@uni, capacidad_unidad),
-        es_prestable = CASE WHEN @prest IS NULL THEN es_prestable ELSE @prest END
-      WHERE idInsumo=@id`)
-    res.json({ ok: true })
-  } catch (err) {
-    console.error('Actualizar insumo error:', err)
-    res.status(500).json({ error: 'Error al actualizar insumo' })
-  }
-})
-
-router.patch('/insumos/:id/stock', async (req, res) => {
-  const { id } = req.params
-  const { delta } = req.body || {}
-  if (typeof delta !== 'number') return res.status(400).json({ error: 'delta numérico es obligatorio' })
-  try {
-    const pool = await getConnection()
-    const r = await pool.request()
-      .input('id', sql.VarChar(10), String(id))
-      .input('d', sql.Int, delta)
-      .query(`UPDATE insumos SET stock = CASE WHEN stock + @d < 0 THEN 0 ELSE stock + @d END WHERE idInsumo=@id; SELECT stock FROM insumos WHERE idInsumo=@id`)
-    res.json({ ok: true, stock: r.recordset[0]?.stock })
-  } catch (err) {
-    console.error('Ajuste stock error:', err)
-    res.status(500).json({ error: 'Error al ajustar stock' })
-  }
-})
-
-// ---- Prestamos (Entregas) ----
-router.get('/prestamos', async (req, res) => {
-  try {
-    const pool = await getConnection()
-    const { estado, idInsumo, idSolicitud, desde, hasta, limit } = req.query || {}
-    const top = Math.min(Number(limit) || 100, 500)
-    const rq = pool.request()
-    const clauses = []
-    if (estado === 'ACTIVOS') clauses.push('p.devuelto = 0')
-    else if (estado === 'DEVUELTOS') clauses.push('p.devuelto = 1')
-    else if (estado === 'VENCIDOS') clauses.push('p.devuelto = 0 AND p.fecha_compromiso < CAST(GETDATE() AS date)')
-    if (idInsumo) { rq.input('idInsumo', sql.VarChar(10), String(idInsumo)); clauses.push('p.idInsumo=@idInsumo') }
-    if (idSolicitud) { rq.input('idSolicitud', sql.VarChar(10), String(idSolicitud)); clauses.push('p.idSolicitud=@idSolicitud') }
-    if (desde) { rq.input('desde', sql.Date, new Date(desde)); clauses.push('p.fecha_prestamo >= @desde') }
-    if (hasta) { rq.input('hasta', sql.Date, new Date(hasta)); clauses.push('p.fecha_prestamo <= @hasta') }
-    const where = clauses.length ? 'WHERE ' + clauses.join(' AND ') : ''
-    const r = await rq.query(`
-      SELECT TOP (${top}) p.idPrestamo, p.idSolicitud, p.idInsumo, p.cantidad, p.entregado_por, p.idUsuario_receptor,
-             p.fecha_prestamo, p.fecha_compromiso, p.fecha_devolucion, p.devuelto
-      FROM insumos_prestados p
-      ${where}
-      ORDER BY p.fecha_prestamo DESC, p.idPrestamo DESC`)
-    res.json(r.recordset)
-  } catch (err) {
-    console.error('List prestamos error:', err)
-    res.status(500).json({ error: 'Error al listar préstamos' })
-  }
-})
-
-router.post('/prestamos/:id/devolver', async (req, res) => {
-  const { id } = req.params
-  const { fecha_devolucion } = req.body || {}
-  try {
-    const pool = await getConnection()
-    await pool.request()
-      .input('id', sql.VarChar(12), String(id))
-      .input('fdev', sql.Date, fecha_devolucion ? new Date(fecha_devolucion) : new Date())
-      .query('UPDATE insumos_prestados SET devuelto = 1, fecha_devolucion = @fdev WHERE idPrestamo=@id')
-    res.json({ ok: true })
-  } catch (err) {
-    console.error('Devolver préstamo error:', err)
-    res.status(500).json({ error: 'Error al devolver préstamo' })
   }
 })

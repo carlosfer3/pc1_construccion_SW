@@ -15,19 +15,14 @@ export default function Login(){
   async function onSubmit(e){
     e.preventDefault(); setError(''); setLoading(true)
     try {
-      const { user, token, requiereCambioClave } = await api.post('/api/auth/login', { correo, clave })
+      const { user, token } = await api.post('/api/auth/login', { correo, clave })
       // Acceso Instructor: si ?role=INSTR o venimos desde Acceso Instructor, obligar rol
       const mustInstr = (params.get('role') === 'INSTR')
       if (mustInstr && user.idRol !== 'INSTR') {
         setError('Este acceso es solo para Instructores'); setLoading(false); return
       }
       login({ ...user, token })
-      // Si el backend indica que requiere cambio de clave, redirigir
-      if (requiereCambioClave) {
-        window.location.href = '/perfil/clave'
-      } else {
-        window.location.href = (user.idRol === 'ADMIN') ? '/admin' : '/'
-      }
+      window.location.href = (user.idRol === 'ADMIN') ? '/admin' : '/'
     } catch (err) {
       setError('Credenciales inválidas o error de conexión')
     } finally { setLoading(false) }

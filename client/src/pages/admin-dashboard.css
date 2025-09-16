@@ -49,8 +49,7 @@
 .adminx .chev.open{ transform: rotate(180deg); }
 .adminx .badge{ position:absolute; top:-4px; right:-2px; background:#ef4444; color:#fff; font-size:11px; font-weight:900; line-height:1; padding:3px 6px; border-radius:999px; box-shadow:0 0 0 2px #0b1020; }
 
-.adminx .content{ padding:18px; display:grid; grid-template-columns: 1fr; gap:18px; width:100%; }
-.adminx .content.cols-2{ grid-template-columns: 1.3fr .8fr; }
+.adminx .content{ padding:18px; display:grid; grid-template-columns: 1.3fr .8fr; gap:18px; }
 .adminx .card{ background: var(--card); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border:1px solid #0f162f; border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; position:relative; overflow:hidden; }
 /* Halo sin animación (suave) */
 .adminx .card:before{ content:""; position:absolute; inset:-2px; border-radius:inherit; padding:2px; background: conic-gradient(from 0deg, transparent 0 30%, var(--accent) 35%, transparent 40% 60%, var(--accent-2) 65%, transparent 70% 100%); -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity:.18; filter: blur(8px); animation: none; pointer-events: none; }
@@ -85,13 +84,6 @@
 /* Solicitudes - cards */
 .adminx .cards{ display:grid; gap:12px; grid-template-columns: repeat( auto-fill, minmax(280px, 1fr)); }
 .adminx .sol-card{ border:1px solid #101a33; background:#0b1224; border-radius:14px; padding:12px; box-shadow: var(--shadow); display:grid; gap:8px; }
-.adminx .ins-card{ border:1px solid #101a33; background:#0b1224; border-radius:14px; padding:12px; box-shadow: var(--shadow); display:grid; gap:8px; }
-.adminx .ins-head{ display:flex; justify-content:space-between; align-items:center }
-.adminx .badge{ border:1px solid #1b254d; background:#0a1222; color:#e2e8f0; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:800 }
-.adminx .stock.ok{ background:#064e3b; color:#d1fae5 }
-.adminx .stock.low{ background:#111827; color:#e5e7eb; border:1px solid #263045 }
-.adminx .stock.crit{ background:#7f1d1d; color:#fecaca }
-.adminx .ins-actions{ display:flex; gap:8px }
 .adminx .sol-head{ display:flex; align-items:center; justify-content:space-between; gap:8px }
 .adminx .sol-id{ font-weight:900 }
 .adminx .sol-meta{ display:flex; gap:8px; flex-wrap:wrap; color:var(--muted); font-size:12px }
@@ -99,12 +91,7 @@
 .adminx .btn-sm{ padding:8px 10px; border-radius:10px; border:1px solid #141a33; background:#0b1229; color:#e5e7eb; font-weight:800; cursor:pointer }
 .adminx .btn-sm:hover{ filter: brightness(1.05) }
 .adminx .sol-obs{ color:var(--muted); font-size:13px }
-.adminx .toolbar{ display:flex; gap:8px; flex-wrap:nowrap; align-items:center; margin-bottom:8px; overflow-x:auto }
-.adminx .toolbar label{ display:inline-flex; gap:6px; align-items:center; white-space:nowrap }
-.adminx .toolbar .sol-filter{ min-width:140px }
-@media (max-width: 860px){
-  .adminx .toolbar{ flex-wrap:wrap }
-}
+.adminx .toolbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px }
 .adminx select.sol-filter, .adminx input.sol-filter{ background:#0b1229; color:#e5e7eb; border:1px solid #141a33; border-radius:10px; padding:8px 10px }
 
 /* skeletons */
@@ -113,10 +100,6 @@
 .adminx .skel-row.w40{ width:40% }
 .adminx .skel-row.w60{ width:60% }
 .adminx .skel-row.w80{ width:80% }
-
-/* anti-parpadeo list */
-.adminx .fade{ transition: opacity .2s ease }
-.adminx .fade.loading{ opacity:.55 }
 
 .adminx table{ width:100%; border-collapse: collapse; color:#e5e7eb; }
 .adminx thead th{ text-align:left; font-size:13px; color:var(--muted); font-weight:900; padding:8px 0; border-bottom:1px solid #12203d; }
@@ -153,31 +136,3 @@
 @media (max-width: 860px){
   .adminx .content{ grid-template-columns: 1fr; }
 }
-.adminx .inv-list{ display:grid; gap:8px }
-.adminx .inv-item{ display:grid; grid-template-columns: 1fr; align-items:center; gap:12px; border:1px solid #101a33; background:#0b1224; border-radius:12px; padding:14px 16px; position:relative; z-index:0; min-height:84px }
-.adminx .inv-meta{ display:flex; gap:8px; flex-wrap:wrap; color:var(--muted); font-size:12px }
-.adminx .inv-stock{ position:absolute; top:50%; left:50%; transform: translate(-50%, -55%); z-index:1 }
-.adminx .inv-stock .badge{ font-size:12px; padding:6px 12px; min-width:140px; text-align:center; white-space:nowrap }
-.adminx .inv-actions{ display:flex; gap:8px; align-items:center; flex-wrap:nowrap; position:absolute; top:50%; right:12px; transform: translateY(-50%); }
-.adminx .inv-actions .btn-sm{ white-space:nowrap }
-
-@media (max-width: 900px){
-  .adminx .inv-actions{ right:12px; }
-}
-.adminx .form-inline{ display:grid; gap:8px; grid-template-columns: repeat(6, minmax(0,1fr)); }
-.adminx .form-inline input, .adminx .form-inline select{ background:#0b1229; color:#e5e7eb; border:1px solid #141a33; border-radius:10px; padding:8px 10px }
-.adminx .form-inline .wide{ grid-column: span 2 }
-
-/* Modal */
-.adminx .modal-backdrop{ position:fixed; inset:0; background: rgba(0,0,0,.6); display:grid; place-items:center; z-index: 50 }
-.adminx .modal{ width:min(560px, 96%); background:#0b1224; border:1px solid #141a33; border-radius:14px; box-shadow: var(--shadow); padding:16px }
-.adminx .modal .actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px }
-.adminx .modal h3{ margin:0 0 10px }
-.adminx .modal .grid{ display:grid; gap:8px; grid-template-columns: repeat(2, minmax(0,1fr)) }
-.adminx .modal input, .adminx .modal select{ background:#0b1229; color:#e5e7eb; border:1px solid #141a33; border-radius:10px; padding:8px 10px }
-
-/* Usuarios */
-.adminx .usr-list{ display:grid; gap:12px }
-.adminx .usr-card{ border:1px solid #101a33; background:#0b1224; border-radius:14px; padding:12px; box-shadow: var(--shadow); display:grid; gap:6px; grid-template-columns: 1fr auto; align-items:center }
-.adminx .usr-meta{ color: var(--muted); font-size: 12px; display:flex; gap:10px; flex-wrap:wrap }
-.adminx .usr-actions{ display:flex; gap:8px }
