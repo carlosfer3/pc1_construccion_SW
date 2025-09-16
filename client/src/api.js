@@ -9,6 +9,6 @@ export const api = {
   get: (u)=> http('GET', u),
   post: (u,d)=> http('POST', u, d),
   put: (u,d)=> http('PUT', u, d),
+  patch: (u,d)=> http('PATCH', u, d),
   del: (u)=> http('DELETE', u),
 }
-
