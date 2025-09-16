@@ -17,7 +17,7 @@ export default function AdminDashboard(){
     if (!aiQuery.trim() || aiLoading) return
     setAiLoading(true); setAiAnswer(''); setAiShow(true); setAiTyped('')
     try {
-      const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=', {
+      const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyAV-9HOcggGQQpy0HTB5tdu39hOHv0JN2E', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
